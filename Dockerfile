@@ -1,6 +1,7 @@
 FROM ubuntu:16.04
 
 ARG username
+ARG password
 
 RUN apt update && apt install -y \
       git zsh apt-transport-https \
@@ -32,6 +33,9 @@ RUN useradd -ms /bin/zsh $username && \
 WORKDIR /home/$username
 USER $username
 
-ENV USER $username
+ENV DEV_USERNAME $username
+ENV DEV_PASSWORD $password
 
 EXPOSE 3000
+
+ENTRYPOINT code-server /home/$DEV_USERNAME/workspace -p 3000 -d /home/$DEV_USERNAME/code-server --password=$DEV_PASSWORD
