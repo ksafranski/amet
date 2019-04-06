@@ -14,5 +14,4 @@ docker run --privileged -it --rm \
   --hostname=$USERNAME-dev \
   --name=$USERNAME-dev \
   -p 3000:3000 \
-  -p 8000-8100:8000-8100 \
   dev
