@@ -15,7 +15,8 @@ EXPOSE 3000
 RUN apt update && apt install -y \
     git zsh apt-transport-https \
     ca-certificates curl software-properties-common \
-    build-essential wget openssl net-tools locales sudo
+    build-essential wget openssl net-tools locales sudo && \
+    mkdir -p /var/log/code-server && chmod 777 /var/log/code-server
 
 # INSTALL CODE-SERVER
 RUN wget https://github.com/codercom/code-server/releases/download/1.32.0-310/code-server-1.32.0-310-linux-x64.tar.gz && \
