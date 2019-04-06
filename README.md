@@ -15,10 +15,10 @@ for your development environment.
 
 ```bash
 chmod +x run.sh
-./run.sh <username> <password> [<shell>]
+./run.sh -u <username> -p <password> [-s <shell>]
 ```
 
-_Note: the `<shell>` can be `bash` or `zsh` (default `bash`)_
+_Note: the `<shell>` can be `bash` or `zsh` (default: `bash`)_
 
 After this script completes the editor will be running at `https://<HOST|IP>:3000`. It will prompt 
 you for the password you entered when running the script.
