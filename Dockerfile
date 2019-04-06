@@ -29,7 +29,7 @@ RUN add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
    stable"
-RUN apt-get update && apt-get install -y docker-ce
+RUN apt-get update && apt-get install -y docker-ce && service docker start
 
 # INSTALL OTHER PACKAGES
 RUN apt-get update && apt install -y \
@@ -44,6 +44,6 @@ RUN useradd -ms $DEV_SHELL $username && \
 WORKDIR /home/$username
 USER $username
 
-
 # STARTUP
-ENTRYPOINT code-server /home/$DEV_USERNAME/workspace -p 3000 -d /home/$DEV_USERNAME/code-server --password=$DEV_PASSWORD
+COPY ./entrypoint.sh /
+ENTRYPOINT [ "sh", "/entrypoint.sh" ]
