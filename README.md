@@ -16,10 +16,14 @@ Run the script, supplying desired `username` and `password` for your development
 ./run.sh -u <username> -p <password> -l [-s <shell>]
 ```
 
+The above command will build the container, setup `/home/<username>`, set the password and (`-l`) link a folder `./dev-home` from your host into your container's `/home/<username>` directory to persist your data.
+
 _Note: the `<shell>` can be `bash` or `zsh` (default: `bash`)_
 
 After this script completes the editor will be running at `https://<HOST|IP>:3000`. It will prompt 
-you for the password you entered when running the script. Prefer the command line? Hop right in with:
+you for the password you entered when running the script. 
+
+If you would like to access the environment over SSH:
 
 ```shell
 ssh -p 3022 localhost
