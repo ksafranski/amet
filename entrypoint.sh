@@ -1,6 +1,8 @@
 #!/bin/sh
+set -e
+
 sudo service docker start
-code-server /home/$DEV_USERNAME/workspace \
-            -p 3000 \
-            -d /home/$DEV_USERNAME/code-server \
-            --password=$DEV_PASSWORD
+sudo service ssh start
+
+exec "$@"
+
