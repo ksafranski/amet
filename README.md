@@ -10,7 +10,7 @@ development environment.
 
 ## Quick Start
 
-Run the script, supplying desired `password` for your development environment.
+Run the script, supplying desired `username` and `password` for your development environment.
 
 ```shell
 ./run.sh -u <username> -p <password> -l [-s <shell>]
