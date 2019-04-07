@@ -1,6 +1,6 @@
-# DEVENV
+# Amet
 
-Containerized, portable environment for development.
+Containerized, portable development environment.
 
 ## Introduction
 
