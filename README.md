@@ -13,7 +13,7 @@ development environment.
 Run the script, supplying desired `password` for your development environment.
 
 ```shell
-./run.sh -p <password> [-s <shell>]
+./run.sh -u <username> -p <password> -l [-s <shell>]
 ```
 
 _Note: the `<shell>` can be `bash` or `zsh` (default: `bash`)_
