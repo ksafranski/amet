@@ -18,9 +18,9 @@ RUN apt update && apt install -y \
     build-essential wget openssl net-tools locales sudo openssh-server
 
 # INSTALL CODE-SERVER
-RUN wget https://github.com/codercom/code-server/releases/download/1.32.0-310/code-server-1.32.0-310-linux-x64.tar.gz && \
-    tar -xvzf code-server-1.32.0-310-linux-x64.tar.gz -C /tmp && \
-    mv /tmp/code-server-1.32.0-310-linux-x64/code-server /bin/code-server
+RUN wget https://github.com/codercom/code-server/releases/download/1.691-vsc1.33.0/code-server1.691-vsc1.33.0-linux-x64.tar.gz && \
+    tar -xvzf code-server1.691-vsc1.33.0-linux-x64.tar.gz -C /tmp && \
+    mv /tmp/code-server1.691-vsc1.33.0-linux-x64/code-server /bin/code-server
 
 # INSTALL DOCKER
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
