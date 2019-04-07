@@ -15,8 +15,7 @@ EXPOSE 3000
 RUN apt update && apt install -y \
     git zsh apt-transport-https \
     ca-certificates curl software-properties-common \
-    build-essential wget openssl net-tools locales sudo && \
-    mkdir -p /var/log/code-server && chmod 777 /var/log/code-server
+    build-essential wget openssl net-tools locales sudo openssh-server
 
 # INSTALL CODE-SERVER
 RUN wget https://github.com/codercom/code-server/releases/download/1.32.0-310/code-server-1.32.0-310-linux-x64.tar.gz && \
@@ -37,14 +36,22 @@ RUN apt-get update && apt install -y \
     vim
 
 # CREATE USER
-RUN useradd -ms $DEV_SHELL $username && \
-    adduser $username root && \
-    usermod -a -G docker $username && \
-    echo "$username ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd && \
-    chmod 400 /etc/sudoers.d/nopasswd
+RUN groupadd $username && \
+   useradd \
+      -ms $DEV_SHELL \
+      -g root \
+      -p "$(openssl passwd -1 $DEV_PASSWORD)" \
+      $username && \
+   usermod -a -G docker $username && \
+   echo "$username ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd && \
+   chmod 400 /etc/sudoers.d/nopasswd
 WORKDIR /home/$username
 USER $username
 
 # STARTUP
 COPY ./entrypoint.sh /
 ENTRYPOINT [ "sh", "/entrypoint.sh" ]
+CMD code-server /home/$DEV_USERNAME/workspace \
+   -p 3000 \
+   -d /home/$DEV_USERNAME/code-server \
+   --password=$DEV_PASSWORD
