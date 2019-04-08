@@ -12,6 +12,7 @@ forceRebuild=0
 appPort=3000
 sshPort=3022
 mountHome=0
+sshKeyPath=$HOME/.ssh/id_rsa.pub
 
 # HELP, I NEED SOMEBODY
 showHelp() {
@@ -24,6 +25,8 @@ showHelp() {
   echo "  -h          Display this help, exit 0"
   echo "  -i          Launch the container interactively and show logs. Otherwise, the container"
   echo "              will run in daemon mode."
+  echo "  -k <path>   The path to the public key used to authenticate over SSH, so that password"
+  echo "              authentication is not necessary. Defaults to $sshKeyPath"
   echo "  -l          Locally mount ./dev-home to the user's home folder in the container"
   echo "  -m <dir>    Mount the given directory (relative to the host user's \$HOME) to the container"
   echo "              user's \$HOME as a docker volume. Useful to bring in dotfiles and folders like"
@@ -40,12 +43,13 @@ showHelp() {
 }
 
 # PARSE COMMAND LINE ARGS
-while getopts ':a:film:o:p:s:u:' OPT; do
+while getopts ':a:fiklm:o:p:s:u:' OPT; do
   case "$OPT" in
     a) appPort="$OPTARG" ;;
     f) forceRebuild=1 ;;
     h) showHelp; exit 0 ;;
     i) runArgs="-it" ;;
+    k) sshKeyPath="$OPTARG" ;;
     l) mountHome=1 ;;
     m) homeVolumes+=($OPTARG) ;;
     o) portRangeArgs+="-p $OPTARG:$OPTARG " ;;
@@ -57,7 +61,8 @@ while getopts ':a:film:o:p:s:u:' OPT; do
 done
 
 # PROCESS HOME VOLUMES INTO VOLUME ARGS
-[ $mountHome -eq 1 ] && volumeArgs="-v $PWD/dev-home:/home/$username"
+[ $mountHome -eq 1 ] && volumeArgs="-v $PWD/dev-home:/home/$username "
+[ -f "$sshKeyPath" ] && volumeArgs+="-v $sshKeyPath:/etc/ssh/$username/authorized_keys "
 for dir in "${homeVolumes[@]}"; do
   volumeArgs+="-v $HOME/$dir:/home/$username/$dir "
 done

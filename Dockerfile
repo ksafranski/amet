@@ -11,11 +11,13 @@ ENV DEV_SHELL /bin/$shell
 
 EXPOSE 3000
 
-# REQUIRED FOR RUNNING CODE-SERVER
+# REQUIRED FOR RUNNING CODE-SERVER AND OTHER AMET FEATURES
 RUN apt update && apt install -y \
     git zsh apt-transport-https \
     ca-certificates curl software-properties-common \
-    build-essential wget openssl net-tools locales sudo openssh-server
+    build-essential wget openssl net-tools locales sudo openssh-server && \
+    echo "AuthorizedKeysFile %h/.ssh/authorized_keys %h/.ssh/authorized_keys2 /etc/ssh/%u/authorized_keys" >> /etc/ssh/sshd_config && \
+    mkdir -p /etc/ssh/$username
 
 # INSTALL CODE-SERVER
 RUN wget https://github.com/codercom/code-server/releases/download/1.691-vsc1.33.0/code-server1.691-vsc1.33.0-linux-x64.tar.gz && \
@@ -44,7 +46,8 @@ RUN groupadd $username && \
       $username && \
    usermod -a -G docker $username && \
    echo "$username ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd && \
-   chmod 400 /etc/sudoers.d/nopasswd
+   chmod 400 /etc/sudoers.d/nopasswd && \
+   chown -R $username:root /etc/ssh/$username
 WORKDIR /home/$username
 USER $username
 
