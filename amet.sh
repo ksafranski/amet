@@ -17,7 +17,7 @@ homeVolumes=()
 forceRebuild=0
 appPort=3000
 sshPort=3022
-mountHome=0
+mountHome=1
 sshKeyPath=$HOME/.ssh/id_rsa.pub
 timezone=$(getTimezone)
 
@@ -34,10 +34,10 @@ showHelp() {
   echo "              will run in daemon mode."
   echo "  -k <path>   The path to the public key used to authenticate over SSH, so that password"
   echo "              authentication is not necessary. Defaults to $sshKeyPath"
-  echo "  -l          Locally mount ./dev-home to the user's home folder in the container"
   echo "  -m <dir>    Mount the given directory (relative to the host user's \$HOME) to the container"
   echo "              user's \$HOME as a docker volume. Useful to bring in dotfiles and folders like"
   echo "              .ssh or .vimrc. Can be specified multiple times." 
+  echo "  -n          No persistence; disables mounting the home folder as a volume"
   echo "  -o <ranges> Opens the specified port ranges to the host machine. Ex: -o 8000-8100."
   echo "              Can be specified multiple times."
   echo "  -p <passwd> The password to set for the user and the code-server instance."
@@ -51,15 +51,15 @@ showHelp() {
 }
 
 # PARSE COMMAND LINE ARGS
-while getopts ':a:fiklm:o:p:s:t:u:' OPT; do
+while getopts ':a:fikm:no:p:s:t:u:' OPT; do
   case "$OPT" in
     a) appPort="$OPTARG" ;;
     f) forceRebuild=1 ;;
     h) showHelp; exit 0 ;;
     i) runArgs="-it" ;;
     k) sshKeyPath="$OPTARG" ;;
-    l) mountHome=1 ;;
     m) homeVolumes+=($OPTARG) ;;
+    n) mountHome=0 ;;
     o) portRangeArgs+="-p $OPTARG:$OPTARG " ;;
     p) password="$OPTARG" ;;
     s) shell="$OPTARG" ;;
