@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     git zsh apt-transport-https \
     ca-certificates curl software-properties-common \
     build-essential wget openssl net-tools locales \
-    sudo openssh-server && \
+    sudo openssh-server rsync cron && \
     echo "AuthorizedKeysFile %h/.ssh/authorized_keys %h/.ssh/authorized_keys2 /etc/ssh/%u/authorized_keys" >> /etc/ssh/sshd_config && \
     mkdir -p /etc/ssh/$username && \
     locale-gen $lang && \
@@ -43,6 +43,17 @@ RUN apt-get update && apt-get install -y docker-ce && service docker start
 # INSTALL OTHER PACKAGES
 RUN apt-get update && apt-get install -y \
     vim
+
+# SYNC SCRIPT CREATION AND SCHEDULING
+RUN echo "#!/bin/sh\nrsync -a /home/$username/ /data" > /data-sync.sh && \
+    chmod +x /data-sync.sh && \
+    echo "* * * * * /data-sync.sh" > /tmp/data-sync-cron && \
+    echo "* * * * * (sleep 10 ; /data-sync.sh)" >> /tmp/data-sync-cron && \
+    echo "* * * * * (sleep 20 ; /data-sync.sh)" >> /tmp/data-sync-cron && \
+    echo "* * * * * (sleep 30 ; /data-sync.sh)" >> /tmp/data-sync-cron && \
+    echo "* * * * * (sleep 40 ; /data-sync.sh)" >> /tmp/data-sync-cron && \
+    echo "* * * * * (sleep 50 ; /data-sync.sh)" >> /tmp/data-sync-cron
+
 
 # CREATE USER
 RUN groupadd $username && \

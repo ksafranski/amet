@@ -13,10 +13,8 @@ development environment.
 Run the script, supplying desired `username` and `password` for your development environment.
 
 ```shell
-./amet.sh -u <username> -p <password> -l [-s <shell>]
+./amet.sh -u <username> -p <password> [-s <shell>]
 ```
-
-The above command will build the container, setup `/home/<username>`, set the password and (`-l`) link a folder `./dev-home` from your host into your container's `/home/<username>` directory to persist your data.
 
 _Note: the `<shell>` can be `bash` or `zsh` (default: `bash`)_
 
@@ -42,20 +40,11 @@ The Docker container builds a docker client that can be used without conflicting
 
 ## Persisting Data
 
-If you pass the `-l` flag to `amet.sh`, it creates a `./dev-env` directory which is mounted as a volume in the 
-container. This directory is mounted to the `$HOME` path inside of the container.
-
-The root of this directory is your working home directory and can be treated as such; containing other 
-directories, rc's, dot-files, etc. The core directories setup are:
+When the container is started it will mount a volume to a `/data` directory in the container and continually sync 
+the `/home/<username>` directory which is created with the following sub-directories:
 
 - `~/code-server`: maintains all data, config, extensions, etc for Code-Server
 - `~/workspace`: working environment that Code-Server opens initially
-
-Since the home directory is mounted as a volume all work, changes, configurations, etc will be maintained 
-in the `./dev-env` directory on the host machine and persist when the container is not running.
-
-Want to persist just certain files and folders, relative to your user's home folder? Pass arguments like
-`-m .ssh -m Projects` to the `amet.sh` and they'll appear in the same location in the container.
 
 When you're ready to stop developing, you can shut down and restart the container without losing data, regardless
 of whether or not you're persisting volumes. Simply `docker stop USERNAME-dev` (fill in your username!) when you're
