@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+getTimezone() {
+  [ -n "$TZ" ] && echo $TZ
+  [ -f /etc/timezone ] && echo $(cat /etc/timezone)
+  echo $(ls -l /etc/localtime | awk '{print $NF}' | sed 's/.*zoneinfo\///')
+}
+
 username=$(whoami)
 password=password
 shell=bash
@@ -13,6 +19,7 @@ appPort=3000
 sshPort=3022
 mountHome=0
 sshKeyPath=$HOME/.ssh/id_rsa.pub
+timezone=$(getTimezone)
 
 # HELP, I NEED SOMEBODY
 showHelp() {
@@ -35,15 +42,16 @@ showHelp() {
   echo "              Can be specified multiple times."
   echo "  -p <passwd> The password to set for the user and the code-server instance."
   echo "              Defaults to '$password'."
-  echo "  -r <port>   The port that remote ssh connections can be established on." \
-  echo "              Defaults to $sshPort." \
+  echo "  -r <port>   The port that remote ssh connections can be established on."
+  echo "              Defaults to $sshPort."
   echo "  -s <shell>  The shell to set for the user. Defaults to '$shell'."
+  echo "  -t <zone>   The timezone to use. Defaults to '$timezone'."
   echo "  -u <user>   The user to create in the container. Defaults to '$username'."
   echo ""
 }
 
 # PARSE COMMAND LINE ARGS
-while getopts ':a:fiklm:o:p:s:u:' OPT; do
+while getopts ':a:fiklm:o:p:s:t:u:' OPT; do
   case "$OPT" in
     a) appPort="$OPTARG" ;;
     f) forceRebuild=1 ;;
@@ -55,6 +63,7 @@ while getopts ':a:fiklm:o:p:s:u:' OPT; do
     o) portRangeArgs+="-p $OPTARG:$OPTARG " ;;
     p) password="$OPTARG" ;;
     s) shell="$OPTARG" ;;
+    t) timezone="$OPTARG" ;;
     u) username="$OPTARG" ;;
     ?) showHelp; exit 1 ;;
   esac
@@ -73,8 +82,12 @@ if [[ $imageQuery == "" ]] || [ $forceRebuild -eq 1 ]; then
   docker build . -t dev \
     --build-arg username=$username \
     --build-arg password=$password \
-    --build-arg shell=$shell
+    --build-arg shell=$shell \
+    --build-arg timezone="$timezone"
 fi
+
+# ENV VARS
+[ -n "$timezone" ] && runArgs+=" -e TZ=$timezone"
 
 # RUN
 docker run --privileged $runArgs \
