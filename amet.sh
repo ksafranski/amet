@@ -83,7 +83,8 @@ if [[ $imageQuery == "" ]] || [ $forceRebuild -eq 1 ]; then
     --build-arg username=$username \
     --build-arg password=$password \
     --build-arg shell=$shell \
-    --build-arg timezone="$timezone"
+    --build-arg timezone="$timezone" \
+    --build-arg lang=${LANG:-en_US.UTF-8}
 fi
 
 # ENV VARS
