@@ -10,6 +10,12 @@ development environment.
 
 ## Quick Start
 
+Clone the repo:
+
+```
+git clone git@github.com:Fluidbyte/amet.git
+```
+
 Run the script, supplying desired `username` and `password` for your development environment.
 
 ```shell
