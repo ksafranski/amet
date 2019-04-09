@@ -26,7 +26,7 @@ timezone=$(getTimezone)
 
 # HELP, I NEED SOMEBODY
 showHelp() {
-  echo "Usage: $(basename $0) ARGUMENTS"
+  echo "Usage: $(basename $0) ARGUMENTS [-- docker run arguments]"
   echo ""
   echo "  Available arguments:"
   echo ""
@@ -46,6 +46,9 @@ showHelp() {
   echo "  -t <zone>   The timezone to use. Defaults to '$timezone'."
   echo "  -u <user>   The user to create in the container. Defaults to '$username'."
   echo ""
+  echo "  Any arguments included after the argument terminator (--) will be passed directly"
+  echo "  to the docker run command."
+  echo ""
 }
 
 # PARSE COMMAND LINE ARGS
@@ -63,6 +66,7 @@ while getopts ':a:hik:o:p:s:t:u:' OPT; do
     ?) showHelp; exit 1 ;;
   esac
 done
+shift $(($OPTIND-1))
 
 # BUILD
 if [ -f $sshKeyPath ]; then
@@ -89,4 +93,5 @@ docker run --privileged $runArgs \
   -p ${appPort}:3000 \
   -p ${sshPort}:22 \
   $portRangeArgs \
+  $@ \
   dev
