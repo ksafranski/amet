@@ -4,7 +4,7 @@ set -e
 getTimezone() {
   if [ -n "$TZ" ]; then
     echo $TZ
-  elif [] -f /etc/timezone ]; then
+  elif [ -f /etc/timezone ]; then
     echo $(cat /etc/timezone)
   else
     echo $(ls -l /etc/localtime | awk '{print $NF}' | sed 's/.*zoneinfo\///')
