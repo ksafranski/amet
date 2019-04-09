@@ -94,4 +94,4 @@ docker run --privileged $runArgs \
   -p ${sshPort}:22 \
   $portRangeArgs \
   $@ \
-  dev
+  amet-${username}
