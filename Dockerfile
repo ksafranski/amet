@@ -54,7 +54,6 @@ RUN echo "#!/bin/sh\nrsync -a /home/$username/ /data" > /data-sync.sh && \
     echo "* * * * * (sleep 40 ; /data-sync.sh)" >> /tmp/data-sync-cron && \
     echo "* * * * * (sleep 50 ; /data-sync.sh)" >> /tmp/data-sync-cron
 
-
 # CREATE USER
 RUN groupadd $username && \
    useradd \
@@ -70,6 +69,7 @@ WORKDIR /home/$username
 USER $username
 
 # STARTUP
+COPY ./key.pub /etc/ssh/$username/authorized_keys
 COPY ./entrypoint.sh /
 ENTRYPOINT [ "sh", "/entrypoint.sh" ]
 CMD code-server /home/$DEV_USERNAME/workspace \

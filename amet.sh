@@ -11,6 +11,7 @@ getTimezone() {
   fi
 }
 
+# DEFAULTS
 username=$(whoami)
 password=password
 shell=bash
@@ -64,12 +65,18 @@ while getopts ':a:hik:o:p:s:t:u:' OPT; do
 done
 
 # BUILD
+if [ -f $sshKeyPath ]; then
+  cp "$sshKeyPath" ./key.pub
+else
+  touch ./key.pub
+fi
 docker build . -t dev \
   --build-arg username=$username \
   --build-arg password=$password \
   --build-arg shell=$shell \
   --build-arg timezone="$timezone" \
   --build-arg lang=${LANG:-en_US.UTF-8}
+rm ./key.pub
 
 # ENV VARS
 [ -n "$timezone" ] && runArgs+=" -e TZ=$timezone"
