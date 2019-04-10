@@ -65,5 +65,5 @@ COPY ./key.pub /etc/ssh/$username/authorized_keys
 COPY ./homesync.sh /
 COPY ./entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD code-server /home/$DEV_USERNAME/workspace -p 3000 -d /home/$DEV_USERNAME/code-server --password=$DEV_PASSWORD
+CMD ["code-server", "/home/$DEV_USERNAME/workspace", "-p", "3000", "-d", "/home/$DEV_USERNAME/code-server", "--password=$DEV_PASSWORD"]
 
