@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
     sudo openssh-server rsync && \
     echo "AuthorizedKeysFile %h/.ssh/authorized_keys %h/.ssh/authorized_keys2 /etc/ssh/%u/authorized_keys" >> /etc/ssh/sshd_config && \
     mkdir -p /etc/ssh/$username && \
-    locale-gen $lang && \
+    (locale-gen $lang || locale-gen en_US.UTF-8) && \
     ln -snf /usr/share/zoneinfo/$timezone /etc/localtime && echo $TZ > /etc/timezone && \
     apt-get install tzdata
 
