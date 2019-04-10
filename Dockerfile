@@ -6,10 +6,12 @@ ARG password
 ARG shell
 ARG timezone
 ARG lang
+ARG syncFreq
 
 ENV DEV_USERNAME $username
 ENV DEV_PASSWORD $password
 ENV DEV_SHELL /bin/$shell
+ENV DEV_SYNC_FREQ $syncFreq
 ENV TZ $timezone
 
 EXPOSE 3000
@@ -44,10 +46,6 @@ RUN apt-get update && apt-get install -y docker-ce && service docker start
 RUN apt-get update && apt-get install -y \
     vim
 
-# SYNC SCRIPT CREATION AND SCHEDULING
-RUN echo "#!/bin/sh\nrsync -a /home/$username/ /data\n" > /data-sync.sh && \
-    chmod +x /data-sync.sh
-
 # CREATE USER
 RUN groupadd $username && \
    useradd \
@@ -58,14 +56,14 @@ RUN groupadd $username && \
    usermod -a -G docker $username && \
    echo "$username ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd && \
    chmod 400 /etc/sudoers.d/nopasswd && \
-   chown -R $username:root /etc/ssh/$username && \
-   chown $username:root /data-sync.sh
+   chown -R $username:root /etc/ssh/$username
 WORKDIR /home/$username
 USER $username
 
 # STARTUP
 COPY ./key.pub /etc/ssh/$username/authorized_keys
+COPY ./homesync.sh /
 COPY ./entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD code-server /home/$DEV_USERNAME/workspace -p 3000 -d /home/$DEV_USERNAME/code-server --password=$DEV_PASSWORD
+CMD ["code-server", "/home/$DEV_USERNAME/workspace", "-p", "3000", "-d", "/home/$DEV_USERNAME/code-server", "--password=$DEV_PASSWORD"]
 

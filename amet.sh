@@ -23,6 +23,7 @@ sshPort=3022
 mountHome=1
 sshKeyPath=$HOME/.ssh/id_rsa.pub
 timezone=$(getTimezone)
+syncFreq=900
 
 # HELP, I NEED SOMEBODY
 showHelp() {
@@ -31,6 +32,8 @@ showHelp() {
   echo "  Available arguments:"
   echo ""
   echo "  -a <port>   The port that code-server should be exposed on. Defaults to $appPort."
+  echo "  -b <secs>   The frequency with which to back up the home folder, or 0 to disable."
+  echo "              Defaults to $syncFreq."
   echo "  -h          Display this help, exit 0"
   echo "  -i          Launch the container interactively and show logs. Otherwise, the container"
   echo "              will run in daemon mode."
@@ -52,9 +55,10 @@ showHelp() {
 }
 
 # PARSE COMMAND LINE ARGS
-while getopts ':a:hik:o:p:s:t:u:' OPT; do
+while getopts ':a:b:hik:o:p:s:t:u:' OPT; do
   case "$OPT" in
     a) appPort="$OPTARG" ;;
+    b) syncFreq="$OPTARG" ;;
     h) showHelp; exit 0 ;;
     i) runArgs="-it" ;;
     k) sshKeyPath="$OPTARG" ;;
@@ -79,7 +83,8 @@ docker build . -t amet-${username} \
   --build-arg password=$password \
   --build-arg shell=$shell \
   --build-arg timezone="$timezone" \
-  --build-arg lang=${LANG:-en_US.UTF-8}
+  --build-arg lang=${LANG:-en_US.UTF-8} \
+  --build-arg syncFreq=$syncFreq
 rm ./key.pub
 
 # ENV VARS
@@ -87,7 +92,7 @@ rm ./key.pub
 
 # RUN
 docker run --privileged $runArgs \
-  -v $PWD/data:/data \
+  -v $PWD/home-${username}:/sync \
   --hostname=amet-${username} \
   --name=amet-${username} \
   -p ${appPort}:3000 \
