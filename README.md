@@ -42,12 +42,14 @@ the best way to customize your environment is to customize the [`./Dockerfile`](
 
 ## Docker-in-Docker
 
-The Docker container builds a docker client that can be used without conflicting with the host docker instance.
+The Docker container builds a docker client and service which can be used without conflicting with the host docker instance.
 
 ## Persisting Data
 
 When the container is started it will mount a volume to a `/sync` directory in the container and continually sync 
-the `/home/<username>` directory which is created with the following sub-directories:
+the `/home/<username>` directory. This directory will appear in the working directory where the `./amet.sh ...` startup command was run.
+
+Additionally, the following directories will be created (on first run) or synced internally (any subsequent runs):
 
 - `~/code-server`: maintains all data, config, extensions, etc for Code-Server
 - `~/workspace`: working environment that Code-Server opens initially
