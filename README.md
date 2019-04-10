@@ -46,7 +46,7 @@ The Docker container builds a docker client that can be used without conflicting
 
 ## Persisting Data
 
-When the container is started it will mount a volume to a `/data` directory in the container and continually sync 
+When the container is started it will mount a volume to a `/sync` directory in the container and continually sync 
 the `/home/<username>` directory which is created with the following sub-directories:
 
 - `~/code-server`: maintains all data, config, extensions, etc for Code-Server
