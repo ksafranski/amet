@@ -74,7 +74,7 @@ if [ -f $sshKeyPath ]; then
 else
   touch ./key.pub
 fi
-docker build . -t dev \
+docker build . -t amet-${username} \
   --build-arg username=$username \
   --build-arg password=$password \
   --build-arg shell=$shell \
@@ -88,8 +88,8 @@ rm ./key.pub
 # RUN
 docker run --privileged $runArgs \
   -v $PWD/data:/data \
-  --hostname=${username}-dev \
-  --name=${username}-dev \
+  --hostname=amet-${username} \
+  --name=amet-${username} \
   -p ${appPort}:3000 \
   -p ${sshPort}:22 \
   $portRangeArgs \

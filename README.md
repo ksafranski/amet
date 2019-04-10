@@ -53,7 +53,7 @@ the `/home/<username>` directory which is created with the following sub-directo
 - `~/workspace`: working environment that Code-Server opens initially
 
 When you're ready to stop developing, you can shut down and restart the container without losing data, regardless
-of whether or not you're persisting volumes. Simply `docker stop USERNAME-dev` (fill in your username!) when you're
-done, and `docker start USERNAME-dev` when you're ready to start again. All your changes from the last run will
+of whether or not you're persisting volumes. Simply `docker stop amet-USERNAME` (fill in your username!) when you're
+done, and `docker start amet-USERNAME` when you're ready to start again. All your changes from the last run will
 be waiting for you.
 

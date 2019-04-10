@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y \
     vim
 
 # SYNC SCRIPT CREATION AND SCHEDULING
-RUN echo "#!/bin/sh\nwhile true; do\nrsync -a /home/$username/ /data; sleep 5\ndone" > /data-sync.sh && \
+RUN echo "#!/bin/sh\nrsync -a /home/$username/ /data\n" > /data-sync.sh && \
     chmod +x /data-sync.sh
 
 # CREATE USER
@@ -66,8 +66,6 @@ USER $username
 # STARTUP
 COPY ./key.pub /etc/ssh/$username/authorized_keys
 COPY ./entrypoint.sh /
-ENTRYPOINT [ "sh", "/entrypoint.sh" ]
-CMD code-server /home/$DEV_USERNAME/workspace \
-   -p 3000 \
-   -d /home/$DEV_USERNAME/code-server \
-   --password=$DEV_PASSWORD
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD code-server /home/$DEV_USERNAME/workspace -p 3000 -d /home/$DEV_USERNAME/code-server --password=$DEV_PASSWORD
+
