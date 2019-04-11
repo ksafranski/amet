@@ -1,12 +1,13 @@
 FROM ubuntu:18.04
 
 # SETUP, CONFIG
-ARG username
-ARG password
-ARG shell
-ARG timezone
-ARG lang
-ARG syncFreq
+ARG username=amet
+ARG password=password
+ARG shell=bash
+ARG timezone=UTC
+ARG lang=en_US.UTF-8
+ARG syncFreq=900
+ARG fsEngine=aufs
 
 ENV DEV_USERNAME $username
 ENV DEV_PASSWORD $password
@@ -21,7 +22,7 @@ RUN apt-get update && apt-get install -y \
     git zsh apt-transport-https \
     ca-certificates curl software-properties-common \
     build-essential wget openssl net-tools locales \
-    sudo openssh-server rsync && \
+    sudo openssh-server rsync vim && \
     echo "AuthorizedKeysFile %h/.ssh/authorized_keys %h/.ssh/authorized_keys2 /etc/ssh/%u/authorized_keys" >> /etc/ssh/sshd_config && \
     mkdir -p /etc/ssh/$username && \
     (locale-gen $lang || locale-gen en_US.UTF-8) && \
@@ -34,31 +35,32 @@ RUN wget https://github.com/codercom/code-server/releases/download/1.691-vsc1.33
     mv /tmp/code-server1.691-vsc1.33.0-linux-x64/code-server /bin/code-server
 
 # INSTALL DOCKER
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-RUN apt-key fingerprint 0EBFCD88
-RUN add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-   $(lsb_release -cs) \
-   stable"
-RUN apt-get update && apt-get install -y docker-ce && service docker start
-
-# INSTALL OTHER PACKAGES
-RUN apt-get update && apt-get install -y \
-    vim
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+   apt-key fingerprint 0EBFCD88 && \
+   add-apt-repository \
+      "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) \
+      stable" && \
+   apt-get update && \
+   apt-get install -y docker-ce && \
+   echo '{"storage-driver":"$fsEngine"}' > /etc/docker/daemon.json && \
+   service docker start
 
 # CREATE USER
 RUN groupadd $username && \
    useradd \
       -ms $DEV_SHELL \
-      -g root \
+      -g $username \
       -p "$(openssl passwd -1 $DEV_PASSWORD)" \
       $username && \
-   usermod -a -G docker $username && \
+   usermod -a -G docker,root,wheel $username && \
    echo "$username ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd && \
    chmod 400 /etc/sudoers.d/nopasswd && \
    chown -R $username:root /etc/ssh/$username
+
+# SWITCH TO USER. EVERYTHING BEYOND THIS POINT WILL BE DONE WITH USER'S UID/GID
 WORKDIR /home/$username
-USER $username
+USER $username:$username
 
 # STARTUP
 COPY ./key.pub /etc/ssh/$username/authorized_keys
