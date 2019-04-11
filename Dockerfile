@@ -43,6 +43,7 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
       stable" && \
    apt-get update && \
    apt-get install -y docker-ce && \
+   mkdir /etc/docker && \
    echo '{"storage-driver":"$fsEngine"}' > /etc/docker/daemon.json && \
    service docker start
 
@@ -53,7 +54,7 @@ RUN groupadd $username && \
       -g $username \
       -p "$(openssl passwd -1 $DEV_PASSWORD)" \
       $username && \
-   usermod -a -G docker,root,wheel $username && \
+   usermod -a -G docker,root $username && \
    echo "$username ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd && \
    chmod 400 /etc/sudoers.d/nopasswd && \
    chown -R $username:root /etc/ssh/$username
