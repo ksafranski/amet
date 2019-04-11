@@ -44,7 +44,7 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
    apt-get update && \
    apt-get install -y docker-ce && \
    mkdir /etc/docker && \
-   echo '{"storage-driver":"$fsEngine"}' > /etc/docker/daemon.json && \
+   echo "{\"storage-driver\":\"$fsEngine\"}" > /etc/docker/daemon.json && \
    service docker start
 
 # CREATE USER
