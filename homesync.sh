@@ -83,7 +83,7 @@ runSync() {
 }
 
 # TERMINATE CLEANLY
-trap 'loopSecs=0; forceQuit=1; runSync' term
+trap 'loopSecs=0; forceQuit=1; runSync' TERM
 
 # SYNC IT LIKE YOU MEAN IT
 while true; do
