@@ -51,12 +51,14 @@ lastChar=${syncDir:$strPos:1}
 # CHECK FOR A PREVIOUSLY-STARTED PROCESS
 if [ -f "/tmp/homesync.lock" ]; then
   pid=$(cat $LOCKFILE)
-  if ! kill -0 $pid > /dev/null 2>&1; then
+  if kill -0 $pid > /dev/null 2>&1; then
     if [ $pauseForParent -eq 0 ]; then
       echo ">>> [homesync:$$] Already running in PID $pid; exiting"
     else
       echo ">>> [homesync:$$] Already running in PID $pid; waiting..."
-      wait $pid
+      while kill -0 $pid > /dev/null 2>&1; do
+        sleep 1
+      done
     fi
     exit 0
   fi
