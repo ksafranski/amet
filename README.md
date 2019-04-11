@@ -54,8 +54,10 @@ Additionally, the following directories will be created (on first run) or synced
 - `~/code-server`: maintains all data, config, extensions, etc for Code-Server
 - `~/workspace`: working environment that Code-Server opens initially
 
-When you're ready to stop developing, you can shut down and restart the container without losing data, regardless
-of whether or not you're persisting volumes. Simply `docker stop amet-USERNAME` (fill in your username!) when you're
-done, and `docker start amet-USERNAME` when you're ready to start again. All your changes from the last run will
-be waiting for you.
+## Troubleshooting
+
+**Getting "error creating aufs mount to ..." when launching containers inside Amet**  
+On some systems, docker's default and super-efficient `aufs` storage driver can't be used in docker-in-docker
+containers like Amet. Simply re-run `amet.sh` and add the `-f vfs` option. This increases the disk space required
+to store docker images and can moderately slow builds and launches, but is highly compatible.
 
