@@ -49,8 +49,20 @@ non-root user. But don't fret, you can `sudo` without a password!
 set -e  # Break the build if there are any errors in this script
 set -x  # Print out each instruction in the build output
 
-# Packages
-sudo install python tmux
+USER=$(whoami)
+
+# Install Node.js
+curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install python and tmux
+sudo apt-get install -y tmux python
+
+# Global NPM packages
+sudo npm i -g yarn binci
+
+# Take ownership of local caches
+sudo chown -R $USER:$USER ~/.config ~/.npm
 
 # Install ripgrep
 curl -LO https://github.com/BurntSushi/ripgrep/releases/download/0.10.0/ripgrep_0.10.0_amd64.deb
