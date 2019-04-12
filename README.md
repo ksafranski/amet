@@ -46,6 +46,8 @@ non-root user. But don't fret, you can `sudo` without a password!
 
 ```shell
 #!/bin/bash
+set -e  # Break the build if there are any errors in this script
+set -x  # Print out each instruction in the build output
 
 # Packages
 sudo install python tmux
