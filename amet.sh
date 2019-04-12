@@ -25,6 +25,7 @@ sshKeyPath=$HOME/.ssh/id_rsa.pub
 timezone=$(getTimezone)
 syncFreq=900
 fsEngine=aufs
+customizer=""
 
 # HELP, I NEED SOMEBODY
 showHelp() {
@@ -35,6 +36,9 @@ showHelp() {
   echo "  -a <port>   The port that code-server should be exposed on. Defaults to $appPort."
   echo "  -b <secs>   The frequency with which to back up the home folder, or 0 to disable."
   echo "              Defaults to $syncFreq."
+  echo "  -c <script> A custom script file to be run as the target user during the docker build."
+  echo "              This can be used to customize the docker container by installing packages"
+  echo "              or config files without needing to modify the Dockerfile."
   echo "  -f <engine> The storage engine to use for docker-in-docker. 'aufs' is the most"
   echo "              efficient but can cause issues on some linux systems. Specify 'vfs'"
   echo "              if you get errors related to aufs. Defaults to $fsEngine."
@@ -59,10 +63,11 @@ showHelp() {
 }
 
 # PARSE COMMAND LINE ARGS
-while getopts ':a:b:f:hik:o:p:s:t:u:' OPT; do
+while getopts ':a:b:c:f:hik:o:p:s:t:u:' OPT; do
   case "$OPT" in
     a) appPort="$OPTARG" ;;
     b) syncFreq="$OPTARG" ;;
+    c) customizer="$OPTARG" ;;
     f) fsEngine="$OPTARG" ;;
     h) showHelp; exit 0 ;;
     i) runArgs="-it" ;;
@@ -77,12 +82,26 @@ while getopts ':a:b:f:hik:o:p:s:t:u:' OPT; do
 done
 shift $(($OPTIND-1))
 
-# BUILD
-if [ -f $sshKeyPath ]; then
-  cp "$sshKeyPath" ./key.pub
+# SET UP CUSTOMIZER
+if [ -n "$customizer" ] && [ ! -f "$customizer" ]; then
+  echo "File not found: $customizer"
+  exit 2
+elif [ -z "$customizer" ]; then
+  # No customizer; use a blank script so the Dockerfile doesn't fail
+  echo "#!/bin/bash\n" > ./.amet-customizer.sh
 else
-  touch ./key.pub
+  # Customizer exists, copy it locally so Docker can see it
+  cp "$customizer" ./.amet-customizer.sh
 fi
+
+# SET UP SSH KEY
+if [ -f $sshKeyPath ]; then
+  cp "$sshKeyPath" ./.amet-key.pub
+else
+  touch ./.amet-key.pub
+fi
+
+# BUILD
 docker build . -t amet-${username} \
   --build-arg username=$username \
   --build-arg password=$password \
@@ -91,7 +110,10 @@ docker build . -t amet-${username} \
   --build-arg lang=${LANG:-en_US.UTF-8} \
   --build-arg syncFreq=$syncFreq \
   --build-arg fsEngine=$fsEngine
-rm ./key.pub
+
+# CLEANUP
+[ -f ./.amet-key.pub ] && rm -f ./.amet-key.pub
+[ -f ./.amet-customizer.sh ] && rm -f ./.amet-customizer.sh
 
 # ENV VARS
 [ -n "$timezone" ] && runArgs+=" -e TZ=$timezone"

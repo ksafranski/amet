@@ -63,8 +63,12 @@ RUN groupadd $username && \
 WORKDIR /home/$username
 USER $username:$username
 
+# RUN USER CUSTOMIZATIONS
+COPY ./.amet-customizer.sh /customizer.sh
+RUN sh -c /customizer.sh
+
 # STARTUP
-COPY ./key.pub /etc/ssh/$username/authorized_keys
+COPY ./.amet-key.pub /etc/ssh/$username/authorized_keys
 COPY ./homesync.sh /
 COPY ./entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
