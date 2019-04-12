@@ -37,8 +37,26 @@ Just enter the password you specified above.
 
 ## Customizing the Environment
 
-The idea with this project is that your entire development environment is built as a container. Given this, 
-the best way to customize your environment is to customize the [`./Dockerfile`](./Dockerfile) to meet your needs.
+The idea with this project is that your entire development environment is built as an ubuntu container. To add in
+support for the programming languages you work with, libraries you need, or even to bootstrap your dotfiles, Amet allows
+you to specify a customizer script. The script will be run during the build in the Dockerfile, under permissions of the
+non-root user. But don't fret, you can `sudo` without a password!
+
+### Example customizer
+
+```shell
+#!/bin/bash
+
+# Packages
+sudo install python tmux
+
+# Install ripgrep
+curl -LO https://github.com/BurntSushi/ripgrep/releases/download/0.10.0/ripgrep_0.10.0_amd64.deb
+sudo dpkg -i ripgrep_0.10.0_amd64.deb
+rm -f ripgrep_0.10.0_amd64.deb
+```
+
+To build with the customizer script, just pass the `-c path/to/customizer.sh` option to `amet.sh`. It doesn't need to be chmodded executable, Amet will take care of it!
 
 ## Docker-in-Docker
 
