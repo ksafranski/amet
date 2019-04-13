@@ -65,7 +65,7 @@ USER $username:$username
 
 # RUN USER CUSTOMIZATIONS
 COPY ./.amet-customizer.sh /customizer.sh
-RUN sh -c /customizer.sh
+RUN sh /customizer.sh
 
 # STARTUP
 COPY ./.amet-key.pub /etc/ssh/$username/authorized_keys
