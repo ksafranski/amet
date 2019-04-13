@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 USER=$(whoami)
 syncFreq=${DEV_SYNC_FREQ:-900}

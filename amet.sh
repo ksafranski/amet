@@ -123,6 +123,9 @@ docker run --privileged $runArgs \
   -v $PWD/home-${username}:/sync \
   --hostname=amet-${username} \
   --name=amet-${username} \
+  --user=${username}:${username} \
+  --group-add docker \
+  --group-add root \
   -p ${appPort}:3000 \
   -p ${sshPort}:22 \
   $portRangeArgs \
