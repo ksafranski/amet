@@ -18,15 +18,15 @@ if [ "$$" -eq 1 ]; then
     sudo chown -R $USER:$GROUP /sync
     rsync -a /sync/ /home/$USER
 
-    # Start Docker
-    sudo service docker start
-
     # Start sync service
     /homesync.sh -d /home/$USER -l $syncFreq &
 
     # Continue this script after a SIGTERM
     trap 'cleanup' TERM
   fi
+
+  # Start Docker
+  sudo service docker start
 
   # Set up SSH
   sudo chown -R $USER:root /etc/ssh/$USER
