@@ -12,7 +12,8 @@ getTimezone() {
 }
 
 # DEFAULTS
-username=$(whoami)
+username=$(id -un)
+groupname=$(id -gn)
 password=password
 shell=bash
 runArgs="-d"
@@ -26,6 +27,7 @@ timezone=$(getTimezone)
 syncFreq=900
 fsEngine=aufs
 customizer=""
+isMac=$([[ "$(uname -s)" == "Darwin" ]] && echo "1" || echo "0")
 
 # HELP, I NEED SOMEBODY
 showHelp() {
@@ -42,6 +44,7 @@ showHelp() {
   echo "  -f <engine> The storage engine to use for docker-in-docker. 'aufs' is the most"
   echo "              efficient but can cause issues on some linux systems. Specify 'vfs'"
   echo "              if you get errors related to aufs. Defaults to $fsEngine."
+  echo "  -g <group>  The name of the user's primary group. Defaults to '$groupname'."
   echo "  -h          Display this help, exit 0"
   echo "  -i          Launch the container interactively and show logs. Otherwise, the container"
   echo "              will run in daemon mode."
@@ -63,12 +66,13 @@ showHelp() {
 }
 
 # PARSE COMMAND LINE ARGS
-while getopts ':a:b:c:f:hik:o:p:s:t:u:' OPT; do
+while getopts ':a:b:c:f:g:hik:o:p:s:t:u:' OPT; do
   case "$OPT" in
     a) appPort="$OPTARG" ;;
     b) syncFreq="$OPTARG" ;;
     c) customizer="$OPTARG" ;;
     f) fsEngine="$OPTARG" ;;
+    g) groupname="$OPTARG" ;;
     h) showHelp; exit 0 ;;
     i) runArgs="-it" ;;
     k) sshKeyPath="$OPTARG" ;;
@@ -109,7 +113,10 @@ docker build . -t amet-${username} \
   --build-arg timezone="$timezone" \
   --build-arg lang=${LANG:-en_US.UTF-8} \
   --build-arg syncFreq=$syncFreq \
-  --build-arg fsEngine=$fsEngine
+  --build-arg fsEngine=$fsEngine \
+  --build-arg userUid=$(id -u) \
+  --build-arg userGid=$(id -g) \
+  --build-arg groupname=$groupname
 
 # CLEANUP
 [ -f ./.amet-key.pub ] && rm -f ./.amet-key.pub
@@ -118,12 +125,15 @@ docker build . -t amet-${username} \
 # ENV VARS
 [ -n "$timezone" ] && runArgs+=" -e TZ=$timezone"
 
+# SET UP ACTIVE (rsync) OR PASSIVE (volume) SYNCING
+[ "$isMac" -eq 1 ] && runArgs+=" -v $PWD/home-${username}:/sync"
+[ "$isMac" -eq 0 ] && runArgs+=" -v $PWD/home-${username}:/home/${username}"
+
 # RUN
 docker run --privileged $runArgs \
-  -v $PWD/home-${username}:/sync \
   --hostname=amet-${username} \
   --name=amet-${username} \
-  --user=${username}:${username} \
+  --user=${username}:${groupname} \
   --group-add docker \
   --group-add root \
   -p ${appPort}:3000 \

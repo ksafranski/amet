@@ -8,6 +8,9 @@ ARG timezone=UTC
 ARG lang=en_US.UTF-8
 ARG syncFreq=900
 ARG fsEngine=aufs
+ARG groupname=$username
+ARG userUid=1000
+ARG userGid=1000
 
 ENV DEV_USERNAME $username
 ENV DEV_PASSWORD $password
@@ -48,10 +51,11 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
    service docker start
 
 # CREATE USER
-RUN groupadd $username && \
+RUN groupadd $groupname -g $userGid && \
    useradd \
       -ms $DEV_SHELL \
-      -g $username \
+      -u $userUid \
+      -g $groupname \
       -p "$(openssl passwd -1 $DEV_PASSWORD)" \
       $username && \
    usermod -a -G docker,root $username && \
@@ -61,7 +65,7 @@ RUN groupadd $username && \
 
 # SWITCH TO USER. EVERYTHING BEYOND THIS POINT WILL BE DONE WITH USER'S UID/GID
 WORKDIR /home/$username
-USER $username:$username
+USER $username:$groupname
 
 # RUN USER CUSTOMIZATIONS
 COPY ./.amet-customizer.sh /customizer.sh
