@@ -3,6 +3,7 @@ set -e
 set -x
 
 USER=$(whoami)
+GROUP=$(id -gn)
 syncFreq=${DEV_SYNC_FREQ:-900}
 
 cleanup() {
@@ -11,22 +12,25 @@ cleanup() {
 
 # ON FIRST RUN ONLY
 if [ "$$" -eq 1 ]; then
-  # Sync existing data into user home if this is the first run
-  sudo chown -R $USER:$USER /sync
-  rsync -a /sync/ /home/$USER
+  # Check if we're doing an active sync
+  if [ -d "/sync" ]; then  
+    # Sync existing data into user home if this is the first run
+    sudo chown -R $USER:$GROUP /sync
+    rsync -a /sync/ /home/$USER
+
+    # Start Docker
+    sudo service docker start
+
+    # Start sync service
+    /homesync.sh -d /home/$USER -l $syncFreq &
+
+    # Continue this script after a SIGTERM
+    trap 'cleanup' TERM
+  fi
 
   # Set up SSH
   sudo chown -R $USER:root /etc/ssh/$USER
   sudo service ssh start
-
-  # Start Docker
-  sudo service docker start
-
-  # Start sync service
-  /homesync.sh -d /home/$USER -l $syncFreq &
-
-  # Continue this script after a SIGTERM
-  trap 'cleanup' TERM
 fi
 
 # pre-eval the env vars
